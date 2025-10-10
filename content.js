@@ -85,17 +85,16 @@ function injectPageScript() {
 // Download JSON function
 function downloadJSON() {
   try {
-    // Get cardCache from localStorage
-    const cardCache = localStorage.getItem('cardCache');
-
-    if (!cardCache) {
-      alert('No card data found in cache!');
-      return;
-    }
-
     // Request card name from page context
-    window.addEventListener('cardNameResponse', function handler(event) {
-      window.removeEventListener('cardNameResponse', handler);
+    window.addEventListener('cardDataResponse', function handler(event) {
+      window.removeEventListener('cardDataResponse', handler);
+
+      const cardCache = event.detail.data || null;
+
+      if (!cardCache) {
+        alert('No card data found in cache!');
+        return;
+      }
 
       let filename = event.detail.name || 'card';
       filename = filename.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -116,7 +115,7 @@ function downloadJSON() {
     });
 
     // Dispatch event to request card name
-    window.dispatchEvent(new CustomEvent('getCardNameRequest'));
+    window.dispatchEvent(new CustomEvent('getCardDataRequest'));
 
   } catch (error) {
     console.error('Error downloading JSON:', error);

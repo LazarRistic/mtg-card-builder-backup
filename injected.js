@@ -27,24 +27,37 @@ window.addEventListener('loadCardFromJSON', function (event) {
   }
 });
 
-// Listen for card name requests
-window.addEventListener('getCardNameRequest', function (event) {
+// Listen for card data requests
+window.addEventListener('getCardDataRequest', function (event) {
+  let cardData = JSON.stringify({});
   let cardName = 'card';
 
-  if (typeof getCardName === 'function') {
+  if (typeof getCardData === 'function') {
     try {
-      cardName = getCardName();
-      console.log('Card name retrieved:', cardName);
+      cardData = getCardData();
+      console.log('Card data retrieved:', cardData);
+
+      if (typeof getCardName === 'function') {
+        try {
+          cardName = getCardName();
+          console.log('Card name retrieved:', cardName);
+        } catch (error) {
+          console.error('Error calling getCardName:', error);
+        }
+      } else {
+        console.error('getCardName function not found on page');
+      }
+
     } catch (error) {
-      console.error('Error calling getCardName:', error);
+      console.error('Error calling getCardData:', error);
     }
   } else {
-    console.error('getCardName function not found on page');
+    console.error('getCardData function not found on page');
   }
 
   // Send response back
-  window.dispatchEvent(new CustomEvent('cardNameResponse', {
-    detail: { name: cardName }
+  window.dispatchEvent(new CustomEvent('cardDataResponse', {
+    detail: { name: cardName, data: cardData }
   }));
 });
 
