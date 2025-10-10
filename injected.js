@@ -83,6 +83,7 @@ window.addEventListener('getPresetsListRequest', function (event) {
 // Listen for individual preset data request
 window.addEventListener('getPresetDataRequest', function (event) {
   var presetId = event.detail.id;
+  var presetCategory = event.detail.category;
 
   var formData = new FormData();
   formData.append('action', 'builder_ajax');
@@ -101,6 +102,7 @@ window.addEventListener('getPresetDataRequest', function (event) {
         window.dispatchEvent(new CustomEvent('presetDataResponse', {
           detail: {
             id: presetId,
+            category: presetCategory,
             preset: response.data[0]['preset']
           }
         }));

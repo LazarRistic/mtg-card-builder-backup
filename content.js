@@ -282,7 +282,7 @@ function displayPresetsList(presets) {
         <div style="color: #888; font-size: 14px;">Category: ${preset.category || 'Uncategorized'}</div>
         <div style="color: #666; font-size: 12px;">ID: ${preset.id}</div>
       </div>
-      <button class="download-preset-btn" data-id="${preset.id}" data-name="${preset.name}" style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      <button class="download-preset-btn" data-id="${preset.id}" data-name="${preset.name}" data-category="${preset.category}" style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
         Download
       </button>
     `;
@@ -295,13 +295,14 @@ function displayPresetsList(presets) {
     btn.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
       const name = e.target.getAttribute('data-name');
-      downloadSinglePreset(id, name, e.target);
+      const category = e.target.getAttribute('data-category');
+      downloadSinglePreset(id, name, category, e.target);
     });
   });
 }
 
 // Download single preset
-function downloadSinglePreset(id, name, buttonElement) {
+function downloadSinglePreset(id, name, category, buttonElement) {
   buttonElement.textContent = 'Loading...';
   buttonElement.disabled = true;
 
@@ -316,7 +317,7 @@ function downloadSinglePreset(id, name, buttonElement) {
       window.removeEventListener('presetDataResponse', handler);
 
       const presetData = event.detail.preset;
-      const filename = name.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
+      const filename = getFilename(name, category);
 
       // Create and download file
       const blob = new Blob([presetData], { type: 'application/json' });
@@ -357,10 +358,11 @@ async function downloadAllPresets() {
     for (const btn of presetButtons) {
       const id = btn.getAttribute('data-id');
       const name = btn.getAttribute('data-name');
+      const category = btn.getAttribute('data-category');
 
       const promise = new Promise((resolve) => {
         window.dispatchEvent(new CustomEvent('getPresetDataRequest', {
-          detail: { id: id }
+          detail: { id: id, name: name, category: category }
         }));
 
         const handler = (event) => {
@@ -368,6 +370,7 @@ async function downloadAllPresets() {
             window.removeEventListener('presetDataResponse', handler);
             resolve({
               name: name,
+              category: category,
               data: event.detail.preset
             });
           }
@@ -388,7 +391,7 @@ async function downloadAllPresets() {
     const zip = new JSZip();
 
     presets.forEach(preset => {
-      const filename = preset.name.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
+      const filename = getFilename(preset.name, preset.category);
       zip.file(filename, preset.data);
     });
 
@@ -422,4 +425,7 @@ async function downloadAllPresets() {
       button.disabled = false;
     }, 2000);
   }
+}
+function getFilename(name, category) {
+  return (name + "-" + category).trim().replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
 }
