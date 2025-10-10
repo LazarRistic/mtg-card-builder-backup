@@ -40,11 +40,11 @@ The extension uses a **content script + injected script pattern** to overcome Ch
 We use custom events to communicate between the two contexts:
 
 **Content Script → Page Context:**
-- `getCardNameRequest` - Request card name from page
+- `getCardDataRequest` - Request card data and name from page
 - `loadCardFromJSON` - Tell page to load card from localStorage
 
 **Page Context → Content Script:**
-- `cardNameResponse` - Send back the card name
+- `cardDataResponse` - Send back the card data and name
 - No response needed for loadCard (fire and forget)
 
 ### 3. LocalStorage Access
@@ -60,12 +60,11 @@ The extension reads/writes directly to the website's `localStorage`:
 
 1. User clicks "Download JSON" button
 2. `content.js::downloadJSON()` executes
-3. Reads `cardCache` from `localStorage.getItem('cardCache')`
-4. Dispatches `getCardNameRequest` event
-5. `injected.js` catches event, calls page's `getCardName()` function
-6. `injected.js` dispatches `cardNameResponse` with the name
-7. `content.js` receives response, sanitizes filename, creates blob
-8. Downloads file as `[cardname].json`
+3. Dispatches `getCardDataRequest` event
+4. `injected.js` catches event, calls page's `getCardName()` function
+5. `injected.js` dispatches `cardNameResponse` with the name
+6. `content.js` receives response, sanitizes filename, creates blob
+7. Downloads file as `[cardname].json`
 
 ### Load Flow
 
