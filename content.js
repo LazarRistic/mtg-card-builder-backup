@@ -61,7 +61,7 @@ function initializeButtons() {
   document.body.appendChild(presetsModal);
 
   // Add event listeners
-  document.getElementById('json-download-btn').addEventListener('click', downloadJSON);
+  document.getElementById('json-download-btn').addEventListener('click', openDownloadModal);
   document.getElementById('json-load-btn').addEventListener('click', () => fileInput.click());
   document.getElementById('presets-download-btn').addEventListener('click', openPresetsModal);
   fileInput.addEventListener('change', loadJSON);
@@ -70,6 +70,10 @@ function initializeButtons() {
 
   // Inject event listener into page context
   injectPageScript();
+
+  // Create download format modal
+  const downloadModal = createDownloadModal();
+  document.body.appendChild(downloadModal);
 }
 
 // Inject a script into the page context to listen for our custom event
@@ -82,6 +86,89 @@ function injectPageScript() {
   };
 }
 
+// Create download format modal
+function createDownloadModal() {
+  const modal = document.createElement('div');
+  modal.id = 'download-format-modal';
+  modal.style.cssText = `
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    overflow: auto;
+  `;
+
+  modal.innerHTML = `
+    <div style="background-color: #1a1a1a; margin: 15% auto; padding: 30px; border-radius: 10px; width: 80%; max-width: 400px; color: white;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">Download Card</h2>
+        <span id="close-download-modal" style="font-size: 28px; cursor: pointer;">&times;</span>
+      </div>
+      
+      <p style="margin-bottom: 20px; color: #ccc;">Choose export format:</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button id="download-json-btn" style="padding: 15px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">
+          Download as JSON
+        </button>
+        <button id="download-psd-btn" style="padding: 15px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">
+          Download as PSD (Photoshop)
+        </button>
+      </div>
+      
+      <div id="download-status" style="margin-top: 15px; padding: 10px; background-color: #2a2a2a; border-radius: 5px; display: none; text-align: center;"></div>
+    </div>
+  `;
+
+  // Close modal handler
+  modal.querySelector('#close-download-modal').addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // JSON download handler
+  modal.querySelector('#download-json-btn').addEventListener('click', () => {
+    modal.style.display = 'none';
+    downloadJSON();
+  });
+
+  // PSD download handler
+  modal.querySelector('#download-psd-btn').addEventListener('click', () => {
+    const statusDiv = document.getElementById('download-status');
+    statusDiv.textContent = 'Preparing PSD download...';
+    statusDiv.style.color = '#4CAF50';
+    statusDiv.style.display = 'block';
+
+    // Dispatch event to page context
+    window.dispatchEvent(new CustomEvent('downloadCardAsPSD'));
+
+    setTimeout(() => {
+      modal.style.display = 'none';
+      statusDiv.style.display = 'none';
+    }, 1000);
+  });
+
+  return modal;
+}
+
+// Open download modal
+function openDownloadModal() {
+  const modal = document.getElementById('download-format-modal');
+  modal.style.display = 'block';
+
+  // Reset status
+  document.getElementById('download-status').style.display = 'none';
+}
+
 // Download JSON function
 function downloadJSON() {
   try {
@@ -89,10 +176,11 @@ function downloadJSON() {
     window.addEventListener('cardDataResponse', function handler(event) {
       window.removeEventListener('cardDataResponse', handler);
 
+      // Get cardCache from localStorage
       const cardCache = event.detail.data || null;
 
       if (!cardCache) {
-        alert('No card data found in cache!');
+        alert('No card data found!');
         return;
       }
 
@@ -281,7 +369,7 @@ function displayPresetsList(presets) {
         <div style="color: #888; font-size: 14px;">Category: ${preset.category || 'Uncategorized'}</div>
         <div style="color: #666; font-size: 12px;">ID: ${preset.id}</div>
       </div>
-      <button class="download-preset-btn" data-id="${preset.id}" data-name="${preset.name}" data-category="${preset.category}" style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      <button class="download-preset-btn" data-id="${preset.id}" data-name="${preset.name}" data-category="${preset.category || 'uncategorized'}" style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
         Download
       </button>
     `;
@@ -316,7 +404,9 @@ function downloadSinglePreset(id, name, category, buttonElement) {
       window.removeEventListener('presetDataResponse', handler);
 
       const presetData = event.detail.preset;
-      const filename = getFilename(name, category);
+      const cleanName = name.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const cleanCategory = category.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const filename = `${cleanCategory}-${cleanName}.json`;
 
       // Create and download file
       const blob = new Blob([presetData], { type: 'application/json' });
@@ -361,7 +451,7 @@ async function downloadAllPresets() {
 
       const promise = new Promise((resolve) => {
         window.dispatchEvent(new CustomEvent('getPresetDataRequest', {
-          detail: { id: id, name: name, category: category }
+          detail: { id: id }
         }));
 
         const handler = (event) => {
@@ -390,7 +480,9 @@ async function downloadAllPresets() {
     const zip = new JSZip();
 
     presets.forEach(preset => {
-      const filename = getFilename(preset.name, preset.category);
+      const cleanName = preset.name.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const cleanCategory = preset.category.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const filename = `${cleanCategory}-${cleanName}.json`;
       zip.file(filename, preset.data);
     });
 
@@ -424,7 +516,4 @@ async function downloadAllPresets() {
       button.disabled = false;
     }, 2000);
   }
-}
-function getFilename(name, category) {
-  return (name + "-" + category).trim().replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
 }
