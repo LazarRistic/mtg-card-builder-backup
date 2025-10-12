@@ -5,6 +5,7 @@ A Chrome extension that adds backup and restore functionality to [MTG Card Build
 ## Features
 
 - **Download JSON**: Export your current card design as a JSON file with automatic naming based on the card name
+- **Download PSD**: Export your card as a layered Photoshop (PSD) file with all layers preserved
 - **Load JSON**: Import a previously saved JSON file to restore your card design
 - **Download Presets**: Browse all your saved presets and download them individually or all at once as a ZIP file
 - **Seamless Integration**: Buttons blend naturally with the existing MTG Card Builder interface
@@ -30,8 +31,11 @@ A Chrome extension that adds backup and restore functionality to [MTG Card Build
 
 ### Downloading (Backing Up) Your Card
 1. Design your card on [MTG Card Builder](https://mtgcardbuilder.com/creator/)
-2. Click the **Download JSON** button (4th button in the toolbar)
-3. Your card design will be saved as `[cardname].json` to your downloads folder
+2. Click the **Download** button (4th button in the toolbar)
+3. Choose your export format:
+   - **JSON**: Saves card data for restoring later (small file size)
+   - **PSD (Photoshop)**: Exports as a layered PSD file for editing in Photoshop (preserves all layers: art, frames, text, symbols)
+4. Your card will be saved to your downloads folder
 
 ### Loading (Restoring) Your Card
 1. Click the **Load JSON** button (5th button in the toolbar)
@@ -69,6 +73,7 @@ The extension:
 4. Fetches presets using the website's AJAX API (`load_preset` and `load_preset_data` methods)
 5. Handles file downloads and uploads entirely on your local machine
 6. Creates ZIP files using bundled JSZip library (no external dependencies)
+7. Generates layered PSD files using ag-psd library with all card elements preserved as separate layers
 
 ## Privacy
 

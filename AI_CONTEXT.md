@@ -5,8 +5,8 @@ This document explains the architecture and implementation details of this Chrom
 ## Purpose
 
 This Chrome extension adds backup/restore functionality to https://mtgcardbuilder.com/creator/ by:
-1. Adding three buttons to the existing UI (Download JSON, Load JSON, and Download Presets)
-2. Allowing users to export their card designs as JSON files
+1. Adding three buttons to the existing UI (Download, Load JSON, and Download Presets)
+2. Allowing users to export their card designs as JSON or PSD files
 3. Allowing users to import previously saved JSON files to restore their work
 4. Allowing users to browse, download individual presets, or download all presets as a ZIP file
 
@@ -299,6 +299,7 @@ When making changes, test:
 - Vanilla JavaScript (no frameworks)
 - Browser APIs (FileReader, Blob, CustomEvent)
 - JSZip 3.10.1 (bundled locally as `jszip.min.js` for creating ZIP files)
+- ag-psd 14.3.2 (loaded from CDN on-demand for PSD export)
 
 ## Browser Compatibility
 
