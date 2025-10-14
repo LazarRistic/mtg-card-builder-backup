@@ -84,6 +84,14 @@ function injectPageScript() {
   script.onload = function () {
     script.remove();
   };
+
+  // Also inject ag-psd library
+  const agPsdScript = document.createElement('script');
+  agPsdScript.src = chrome.runtime.getURL('ag-psd.min.js');
+  (document.head || document.documentElement).appendChild(agPsdScript);
+  agPsdScript.onload = function() {
+    console.log('ag-psd library loaded locally');
+  };
 }
 
 // Create download format modal

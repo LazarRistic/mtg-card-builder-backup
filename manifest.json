@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MTG Card Builder Backup",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Save and restore your MTG card designs as JSON files to continue working on them later.",
   "content_scripts": [
     {
@@ -10,18 +10,15 @@
       "run_at": "document_idle"
     }
   ],
-  "host_permissions": [
-    "https://cdn.jsdelivr.net/*"
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js", "ag-psd.min.js", "download-json.png", "load-json.png", "download-presets.png"],
+      "matches": ["https://mtgcardbuilder.com/*"]
+    }
   ],
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["injected.js", "download-json.png", "load-json.png", "download-presets.png"],
-      "matches": ["https://mtgcardbuilder.com/*"]
-    }
-  ]
+  }
 }
