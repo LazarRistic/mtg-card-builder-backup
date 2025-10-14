@@ -61,10 +61,11 @@ The extension reads/writes directly to the website's `localStorage`:
 1. User clicks "Download JSON" button
 2. `content.js::downloadJSON()` executes
 3. Dispatches `getCardDataRequest` event
-4. `injected.js` catches event, calls page's `getCardName()` function
-5. `injected.js` dispatches `cardNameResponse` with the name
-6. `content.js` receives response, sanitizes filename, creates blob
-7. Downloads file as `[cardname].json`
+3. Reads `cardCache` from `localStorage.getItem('cardCache')`
+5. `injected.js` catches event, calls page's `getCardName()` function
+6. `injected.js` dispatches `cardNameResponse` with the name
+7. `content.js` receives response, sanitizes filename, creates blob
+8. Downloads file as `[cardname].json`
 
 ### Load Flow
 
@@ -295,11 +296,11 @@ When making changes, test:
 
 ## Dependencies
 
-**Minimal!** This extension uses:
+**All bundled locally!** This extension uses:
 - Vanilla JavaScript (no frameworks)
 - Browser APIs (FileReader, Blob, CustomEvent)
 - JSZip 3.10.1 (bundled locally as `jszip.min.js` for creating ZIP files)
-- ag-psd 14.3.2 (loaded from CDN on-demand for PSD export)
+- ag-psd 14.3.2 (bundled locally as `ag-psd.min.js` for PSD export)
 
 ## Browser Compatibility
 
