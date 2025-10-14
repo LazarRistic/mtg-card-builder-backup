@@ -21,7 +21,10 @@ A Chrome extension that adds backup and restore functionality to [MTG Card Build
 
 ### Manual Installation (Developer Mode)
 1. Download or clone this repository
-2. **Download JSZip**: Go to https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js and save it as `jszip.min.js` in the extension folder
+2. **Download required libraries**:
+   - **JSZip**: Go to https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js and save as `jszip.min.js`
+   - **ag-psd**: Go to https://cdn.jsdelivr.net/npm/ag-psd@14.3.2/dist/bundle.min.js and save as `ag-psd.min.js`
+   - Place both files in the extension folder
 3. Open Chrome and go to `chrome://extensions/`
 4. Enable "Developer mode" in the top right
 5. Click "Load unpacked"
@@ -56,6 +59,7 @@ mtg-card-builder-backup/
 ├── content.js            # Main content script
 ├── injected.js           # Page context script
 ├── jszip.min.js          # JSZip library for creating ZIP files
+├── ag-psd.min.js         # ag-psd library for PSD export
 ├── download-json.png     # Download button icon
 ├── load-json.png         # Load button icon
 ├── download-presets.png  # Download presets button icon
@@ -69,11 +73,12 @@ mtg-card-builder-backup/
 The extension:
 1. Injects three custom buttons into the MTG Card Builder interface
 2. Reads from and writes to the website's `localStorage` where card data is stored
-3. Uses the website's native `getCardName()` and `loadCard()` functions for seamless integration
+3. Uses the website's native `getCardName()`, `getCardData()` and `loadCard()` functions for seamless integration
 4. Fetches presets using the website's AJAX API (`load_preset` and `load_preset_data` methods)
 5. Handles file downloads and uploads entirely on your local machine
-6. Creates ZIP files using bundled JSZip library (no external dependencies)
-7. Generates layered PSD files using ag-psd library with all card elements preserved as separate layers
+6. Creates ZIP files using bundled JSZip library
+7. Generates layered PSD files using bundled ag-psd library with all card elements preserved as separate layers
+8. **All libraries bundled locally** - no external network requests, fully compliant with Chrome Web Store policies
 
 ## Privacy
 
